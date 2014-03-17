@@ -9,7 +9,7 @@ class Hello extends BaseController {
 		
 	}
 	
-	public function index()
+	public function indexx()
 	{
 		echo "yes! i'm alive !!";
 	}

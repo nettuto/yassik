@@ -103,7 +103,24 @@ class Bootstrap {
 			else
 			{
 				$this->_error(0, 'Controller Error!', 'No controller is given! please check your URL.');
+				return FALSE;
 			}
+			
+			
+			/*
+			 * 
+			 * 
+			 * 
+			 * 
+			 * WORKING ON METHODS LODER
+			 * 
+			 * 
+			 * 
+			 * 
+			 * */
+			
+			
+			
 			
 			
 		}
@@ -133,69 +150,65 @@ class Bootstrap {
 				else
 				{
 					$this->_error(0, 'Controller Error!', 'No controller is given! please check your URL.');
+					return FALSE;
 				}
-				
 				
 			}
 			else
 			{
 				$file = $this->_controllersPath.$this->_url[0].'.php';	
 			}
-			
-			
-			
-			
-			
 		}
 				
 		if (file_exists($file)) 
+		{
+			require $file;
+			$controller_index = 0;
+			if($last_folder_index!=0)
 			{
-				require $file;
-				$controller_index = 0;
-				if($last_folder_index!=0)
-				{
-					$controller_index = $last_folder_index+1;	
-					$this->_controller = new $this->_url[$controller_index];
-					
-					//check if there a method passed on url
-					if(isset($this->_url[$controller_index+1])){
-						
-						if(function_exists($this->_url[$controller_index+1])){
-							$this->_controller->{$this->_url[$controller_index+1]}();
-						}
-						else
-						{
-							$this->_error(1, 'Method Error', 'No valid method given');	
-						}
-						
-					}
-					else//load index method 
-					{
-						$this->_controller->index();
-					}
-				}
-				else
-				{
-					
-					$this->_controller = new $this->_url[$controller_index];
-					//check if the method given on _url exists and call it if it is!
-					if(function_exists($this->_url[1])){
-						//$this->_controller->{$this->_url[$controller_index+1]}();
-					}
-					else
-					{
-						$this->_error(1, 'Method Error', 'No valid method given');	
-					}
-					//$this->_controller->index();
-				}
+				$controller_index = $last_folder_index+1;	
+				$this->_controller = new $this->_url[$controller_index];
 			}
 			else
 			{
-				//echo "error loading controller";
-				//$controller = new Exceptions();
-				$this->_error('', 'Controller File Error', 'Controller File '.$file.' dosnt Exist!');
+				$this->_controller = new $this->_url[$controller_index];
+			}
+		}
+		else
+		{
+			//echo "error loading controller";
+			//$controller = new Exceptions();
+			$this->_error('', 'Controller File Error', 'Controller File '.$file.' dosnt Exist!');
+			return FALSE;
+		}
+			
+		//Load the appropriate controller	
+		if(isset($this->_url[$controller_index+1]))
+		{
+
+			if(method_exists($this->_controller,$this->_url[$controller_index+1])){
+				$this->_controller->{$this->_url[$controller_index+1]}();
+			}
+			else
+			{
+				$this->_error(1, 'Method Error', 'No valid method given');	
 				return FALSE;
 			}
+			
+		}
+		else//load index method 
+		{
+			if(method_exists($this->_controller,'index'))
+			{
+				$this->_controller->index();	
+			}
+			else
+			{
+				$this->_error(1, 'Method Error', 'No index Method in '.$this->_url[$controller_index].' Controller!');
+				return FALSE;
+			}
+			
+		}
 		
 		
 		//----------------------------------------------------------------	
